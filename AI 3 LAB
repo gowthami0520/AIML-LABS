@@ -1,0 +1,64 @@
+import csv
+
+# Step 1: Create the dataset CSV file
+data = [
+    ["Latency Sensitivity", "Data Volume", "RAM Demand",
+     "Network Bandwidth", "GPU Required", "High-Performance Edge"],
+
+    ["High", "Large", "High", "Dedicated", "Yes", "Yes"],
+    ["High", "Small", "High", "Shared", "Yes", "No"],
+    ["High", "Large", "High", "Shared", "Yes", "Yes"],
+    ["Low", "Large", "Medium", "Shared", "No", "No"],
+    ["High", "Large", "High", "Dedicated", "No", "Yes"]
+]
+
+with open("workload_data.csv", "w", newline="") as file:
+    writer = csv.writer(file)
+    writer.writerows(data)
+
+print("workload_data.csv created successfully!\n")
+
+
+# Step 2: Load the dataset
+with open("workload_data.csv", "r") as file:
+    reader = csv.reader(file)
+    rows = list(reader)
+
+header = rows[0]
+instances = rows[1:]
+
+
+# Step 3: Initialize the most specific hypothesis
+# Number of attributes = 5
+hypothesis = ["Ø", "Ø", "Ø", "Ø", "Ø"]
+
+print("Initial Hypothesis:", hypothesis)
+print("-" * 60)
+
+
+# Step 4: Apply Find-S Algorithm
+for i, row in enumerate(instances, start=1):
+
+    attributes = row[:-1]
+    target = row[-1]
+
+    # Process only positive examples
+    if target == "Yes":
+
+        for j in range(len(hypothesis)):
+
+            # First positive example
+            if hypothesis[j] == "Ø":
+                hypothesis[j] = attributes[j]
+
+            # Generalize if values are different
+            elif hypothesis[j] != attributes[j]:
+                hypothesis[j] = "?"
+
+    print(f"After processing W{i}: {hypothesis}")
+
+
+# Step 5: Display final hypothesis
+print("-" * 60)
+print("Final Most Specific Hypothesis:")
+print(hypothesis)
