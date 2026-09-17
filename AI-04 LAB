@@ -1,0 +1,100 @@
+# Candidate Elimination Algorithm
+
+# Training Dataset
+data = [
+    ["Sunny", "Warm", "Normal", "Strong", "Yes"],
+    ["Sunny", "Warm", "High", "Strong", "Yes"],
+    ["Rainy", "Cold", "High", "Strong", "No"],
+    ["Sunny", "Warm", "High", "Weak", "Yes"]
+]
+
+# Attribute names
+attributes = ["Sky", "AirTemp", "Humidity", "Wind"]
+
+# Most Specific Boundary
+S = ["Ø", "Ø", "Ø", "Ø"]
+
+# Most General Boundary
+G = [["?", "?", "?", "?"]]
+
+
+# Function to check if hypothesis covers an example
+def covers(hypothesis, example):
+    for i in range(len(hypothesis)):
+        if hypothesis[i] != "?" and hypothesis[i] != example[i]:
+            return False
+    return True
+
+
+# Function to generalize S
+def generalize_S(S, example):
+    new_S = S.copy()
+
+    for i in range(len(S)):
+        if S[i] == "Ø":
+            new_S[i] = example[i]
+        elif S[i] != example[i]:
+            new_S[i] = "?"
+
+    return new_S
+
+
+# Function to specialize G
+def specialize_G(G, example, S):
+    new_G = []
+
+    for hypothesis in G:
+        if covers(hypothesis, example):
+            for i in range(len(hypothesis)):
+
+                if hypothesis[i] == "?":
+                    if S[i] != "?" and S[i] != "Ø":
+                        new_hypothesis = hypothesis.copy()
+                        new_hypothesis[i] = S[i]
+
+                        if not covers(new_hypothesis, example):
+                            new_G.append(new_hypothesis)
+        else:
+            new_G.append(hypothesis)
+
+    return new_G
+
+
+# Candidate Elimination
+for index, row in enumerate(data, start=1):
+
+    example = row[:-1]
+    target = row[-1]
+
+    if target == "Yes":
+
+        # Generalize S to cover positive example
+        S = generalize_S(S, example)
+
+        # Remove G hypotheses that do not cover positive example
+        G = [h for h in G if covers(h, example)]
+
+    else:
+
+        # Specialize G to exclude negative example
+        G = specialize_G(G, example, S)
+
+        # Remove S if it covers negative example
+        if covers(S, example):
+            print("S covers negative example - further specialization needed.")
+
+    print("\nAfter", "D" + str(index))
+    print("S =", S)
+    print("G =", G)
+
+
+# Final Version Space
+print("\n--------------------------------")
+print("FINAL VERSION SPACE")
+print("--------------------------------")
+
+print("Most Specific Boundary (S):")
+print(S)
+
+print("\nMost General Boundary (G):")
+print(G)
